@@ -74,7 +74,11 @@ extension SongViewController: MiniPlayerDelegate {
     
     maxiCard.backingImage = view.makeSnapshot()
     maxiCard.currentSong = song
-    present(maxiCard, animated: true, completion: nil)
+    maxiCard.sourceView = miniPlayer
+    if let tabBar = tabBarController?.tabBar {
+      maxiCard.tabBarImage = tabBar.makeSnapshot()
+    }
+    present(maxiCard, animated: false, completion: nil)
     
   }
   

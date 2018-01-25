@@ -163,17 +163,29 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mTc-0a-cqh">
-                                        <rect key="frame" x="0.0" y="479" width="414" height="237"/>
+                                        <rect key="frame" x="0.0" y="479" width="414" height="430"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </view>
+                                    <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qaO-iZ-GZx">
+                                        <rect key="frame" x="0.0" y="509" width="414" height="400"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="400" id="U2g-Hh-k0c"/>
+                                        </constraints>
+                                        <connections>
+                                            <segue destination="yjv-ou-chZ" kind="embed" id="jKV-pH-ZvZ"/>
+                                        </connections>
+                                    </containerView>
                                 </subviews>
                                 <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="qaO-iZ-GZx" secondAttribute="bottom" id="ENo-I8-SQm"/>
                                     <constraint firstAttribute="trailing" secondItem="mTc-0a-cqh" secondAttribute="trailing" id="Ga3-ni-Ab8"/>
-                                    <constraint firstAttribute="bottom" secondItem="mnM-Yz-Upj" secondAttribute="bottom" constant="237" id="K6C-yn-bfj"/>
                                     <constraint firstItem="mnM-Yz-Upj" firstAttribute="centerX" secondItem="xgN-ew-Y9u" secondAttribute="centerX" id="Y7d-h4-LRa"/>
                                     <constraint firstItem="mnM-Yz-Upj" firstAttribute="top" secondItem="xgN-ew-Y9u" secondAttribute="top" constant="57" id="bwx-JR-qg0"/>
                                     <constraint firstAttribute="bottom" secondItem="mTc-0a-cqh" secondAttribute="bottom" id="ixT-XY-yA9"/>
                                     <constraint firstItem="mnM-Yz-Upj" firstAttribute="leading" secondItem="xgN-ew-Y9u" secondAttribute="leading" id="o0E-15-w7I"/>
+                                    <constraint firstItem="qaO-iZ-GZx" firstAttribute="leading" secondItem="xgN-ew-Y9u" secondAttribute="leading" id="o6s-9h-eHK"/>
+                                    <constraint firstAttribute="trailing" secondItem="qaO-iZ-GZx" secondAttribute="trailing" id="pBH-XI-1di"/>
+                                    <constraint firstItem="qaO-iZ-GZx" firstAttribute="top" secondItem="mnM-Yz-Upj" secondAttribute="bottom" constant="30" id="tV8-7J-AO6"/>
                                     <constraint firstItem="mTc-0a-cqh" firstAttribute="leading" secondItem="xgN-ew-Y9u" secondAttribute="leading" id="vtJ-NQ-TMB"/>
                                     <constraint firstItem="mTc-0a-cqh" firstAttribute="top" secondItem="mnM-Yz-Upj" secondAttribute="bottom" id="wrt-dl-gBm"/>
                                     <constraint firstAttribute="trailing" secondItem="mnM-Yz-Upj" secondAttribute="trailing" id="xQd-3L-hXr"/>
@@ -182,6 +194,12 @@
                                     <outlet property="delegate" destination="6qg-eo-Yqd" id="aWi-jY-CW8"/>
                                 </connections>
                             </scrollView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="p3F-Ih-3On">
+                                <rect key="frame" x="0.0" y="608" width="414" height="128"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="128" id="ohx-jh-6gU"/>
+                                </constraints>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
@@ -189,6 +207,9 @@
                             <constraint firstItem="COp-Ty-xGr" firstAttribute="leading" secondItem="U9E-6B-uF7" secondAttribute="leading" id="3ja-5F-sbm"/>
                             <constraint firstItem="U9E-6B-uF7" firstAttribute="trailing" secondItem="COp-Ty-xGr" secondAttribute="trailing" id="7ax-x9-C26"/>
                             <constraint firstItem="U9E-6B-uF7" firstAttribute="trailing" secondItem="xgN-ew-Y9u" secondAttribute="trailing" id="C1N-9T-YLI"/>
+                            <constraint firstItem="U9E-6B-uF7" firstAttribute="trailing" secondItem="p3F-Ih-3On" secondAttribute="trailing" id="WpY-47-bJh"/>
+                            <constraint firstItem="p3F-Ih-3On" firstAttribute="leading" secondItem="U9E-6B-uF7" secondAttribute="leading" id="Ya8-1x-4WZ"/>
+                            <constraint firstItem="U9E-6B-uF7" firstAttribute="bottom" secondItem="p3F-Ih-3On" secondAttribute="bottom" id="ZQc-Gz-VTT"/>
                             <constraint firstItem="xgN-ew-Y9u" firstAttribute="top" secondItem="COp-Ty-xGr" secondAttribute="top" constant="15" id="bDq-Ta-iMS"/>
                             <constraint firstAttribute="bottom" secondItem="s1R-3u-GDT" secondAttribute="bottom" id="bcU-l5-pfw"/>
                             <constraint firstItem="s1R-3u-GDT" firstAttribute="leading" secondItem="U9E-6B-uF7" secondAttribute="leading" id="eSP-jV-AU9"/>
@@ -206,10 +227,19 @@
                         <outlet property="backingImageTopInset" destination="gsi-UU-TVR" id="p0T-gI-0hS"/>
                         <outlet property="backingImageTrailingInset" destination="7ax-x9-C26" id="7MW-aR-1cJ"/>
                         <outlet property="backingImageView" destination="COp-Ty-xGr" id="hx2-FR-fzR"/>
+                        <outlet property="bottomSectionHeight" destination="ohx-jh-6gU" id="HMX-hc-gXn"/>
+                        <outlet property="bottomSectionImageView" destination="p3F-Ih-3On" id="drT-Tz-GeY"/>
+                        <outlet property="bottomSectionLowerConstraint" destination="ZQc-Gz-VTT" id="jyI-kC-K5z"/>
                         <outlet property="coverArtImage" destination="YvK-6V-2d4" id="KSt-i6-nyq"/>
+                        <outlet property="coverImageBottom" destination="XXO-qs-qMa" id="PnV-f2-FKN"/>
                         <outlet property="coverImageContainer" destination="mnM-Yz-Upj" id="nMg-pc-GIs"/>
+                        <outlet property="coverImageContainerTopInset" destination="bwx-JR-qg0" id="Pqd-SR-Fzs"/>
+                        <outlet property="coverImageHeight" destination="sY6-ip-MGF" id="Pwc-lO-guu"/>
+                        <outlet property="coverImageLeading" destination="syo-yS-87w" id="iV7-jd-iKn"/>
+                        <outlet property="coverImageTop" destination="nbv-Ge-WlB" id="Mgu-pw-wTq"/>
                         <outlet property="dimmerLayer" destination="s1R-3u-GDT" id="nS1-Jc-ZfO"/>
                         <outlet property="dismissChevron" destination="2Ch-J9-ZHT" id="25Q-87-SfV"/>
+                        <outlet property="lowerModuleTopConstraint" destination="tV8-7J-AO6" id="NFe-9m-5sv"/>
                         <outlet property="scrollView" destination="xgN-ew-Y9u" id="b5A-fN-xhe"/>
                         <outlet property="stretchySkirt" destination="mTc-0a-cqh" id="uQQ-fZ-jld"/>
                     </connections>

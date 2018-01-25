@@ -28,13 +28,19 @@
 
 import UIKit
 
+protocol MaxiPlayerSourceProtocol: class {
+  var originatingFrameInWindow: CGRect {get}
+  var originatingCoverImageView: UIImageView {get}
+}
+
 class MaxiSongCardViewController: UIViewController, SongSubscriber {
 
   // MARK: - Properties
   let cardCornerRadius: CGFloat = 10
   var currentSong: Song?
-  let primaryDuration = 4.0 // set to 0.5 when ready
+  let primaryDuration = 0.5 // set to 0.5 when ready
   let backingImageEdgeInset: CGFloat = 15.0
+  weak var sourceView: MaxiPlayerSourceProtocol!
   
   //scroller
   @IBOutlet weak var scrollView: UIScrollView!
@@ -47,6 +53,11 @@ class MaxiSongCardViewController: UIViewController, SongSubscriber {
   @IBOutlet weak var coverArtImage: UIImageView!
   @IBOutlet weak var dismissChevron: UIButton!
   //add cover image constraints here
+  @IBOutlet weak var coverImageLeading : NSLayoutConstraint!
+  @IBOutlet weak var coverImageTop : NSLayoutConstraint!
+  @IBOutlet weak var coverImageBottom : NSLayoutConstraint!
+  @IBOutlet weak var coverImageHeight : NSLayoutConstraint!
+  @IBOutlet weak var coverImageContainerTopInset : NSLayoutConstraint!
   
   //backing image
   var backingImage: UIImage?
@@ -58,6 +69,14 @@ class MaxiSongCardViewController: UIViewController, SongSubscriber {
   @IBOutlet weak var backingImageTrailingInset : NSLayoutConstraint!
   @IBOutlet weak var backingImageBottomInset : NSLayoutConstraint!
  
+  @IBOutlet weak var lowerModuleTopConstraint : NSLayoutConstraint!
+  
+  // fake tabbar constraints
+  var tabBarImage: UIImage?
+  @IBOutlet weak var bottomSectionHeight : NSLayoutConstraint!
+  @IBOutlet weak var bottomSectionLowerConstraint : NSLayoutConstraint!
+  @IBOutlet weak var bottomSectionImageView : UIImageView!
+  
   override var preferredStatusBarStyle: UIStatusBarStyle {
     return .lightContent
   }
@@ -77,18 +96,35 @@ class MaxiSongCardViewController: UIViewController, SongSubscriber {
    
     scrollView.contentInsetAdjustmentBehavior = .never //dont let Safe Area insets affect the scroll view
     
-    //DELETE THIS LATER
-    scrollView.isHidden = true
+    // sets the corner radii for the top two corners only
+    coverImageContainer.layer.cornerRadius = cardCornerRadius
+    coverImageContainer.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
   }
 
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
+    configureImageLayerInStartPosition()
+    coverArtImage.image = sourceView.originatingCoverImageView.image
+    configureCoverImageInStartPosition()
+    stretchySkirt.backgroundColor = .white
+    configureCoverImageInStartPosition()
+    configureBottomSection()
   }
 
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
     
     animateBackingImageIn()
+    animateImageLayerIn()
+    animateCoverImageIn()
+    animateLowerModuleIn()
+    animateBottomSectionOut()
+  }
+  
+  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    if let destination = segue.destination as? SongSubscriber {
+      destination.currentSong = currentSong
+    }
   }
 }
 
@@ -96,7 +132,13 @@ class MaxiSongCardViewController: UIViewController, SongSubscriber {
 extension MaxiSongCardViewController {
 
   @IBAction func dismissAction(_ sender: Any) {
-    self.dismiss(animated: false)
+    animateBackingImageOut()
+    animateCoverImageout()
+    animateLowerModuleOut()
+    animateBottomSectionIn()
+    animateImageLayoutOut { (_) in
+      self.dismiss(animated: false)
+    }
   }
 }
 
@@ -136,4 +178,159 @@ extension MaxiSongCardViewController {
   func animateBackingImageOut() {
     animateBackingImage(presenting: false)
   }
+}
+
+extension MaxiSongCardViewController {
+  private var startColor: UIColor {
+    return UIColor.white.withAlphaComponent(0.3)
+  }
+  private var endColor: UIColor {
+    return .white
+  }
+  
+  private var imageLayerInsetForOutPosition: CGFloat {
+    let imageFrame = view.convert(sourceView.originatingFrameInWindow, to: view)
+    let inset = imageFrame.minY - backingImageEdgeInset
+    return inset
+  }
+  
+  func configureImageLayerInStartPosition() {
+    coverImageContainer.backgroundColor = startColor
+    let startInset = imageLayerInsetForOutPosition
+    dismissChevron.alpha = 0
+    coverImageContainer.layer.cornerRadius = 0
+    coverImageContainerTopInset.constant = startInset
+    view.layoutIfNeeded()
+  }
+  
+  func animateImageLayerIn() {
+    UIView.animate(withDuration: primaryDuration / 4.0) {
+      self.coverImageContainer.backgroundColor = self.endColor
+    }
+    
+    UIView.animate(withDuration: primaryDuration, delay: 0, options: [.curveEaseIn], animations: {
+      self.coverImageContainerTopInset.constant = 0
+      self.dismissChevron.alpha = 1
+      self.coverImageContainer.layer.cornerRadius = self.cardCornerRadius
+      self.view.layoutIfNeeded()
+    }, completion: nil)
+  }
+  
+  func animateImageLayoutOut(completion: @escaping ((Bool) -> Void)) {
+    let endInset = imageLayerInsetForOutPosition
+    
+    UIView.animate(withDuration: primaryDuration / 4.0, delay: primaryDuration, options: [.curveEaseOut], animations: {
+      self.coverImageContainer.backgroundColor = self.startColor
+    }) { (finished) in
+      completion(finished) // fire complete here, because this is the end of the animation
+    }
+    
+    UIView.animate(withDuration: primaryDuration, delay: 0, options: [.curveEaseOut], animations: {
+      self.coverImageContainerTopInset.constant = endInset
+      self.dismissChevron.alpha = 0
+      self.coverImageContainer.layer.cornerRadius = 0
+      self.view.layoutIfNeeded()
+    }, completion: nil)
+  }
+  
+}
+
+//MARK: -  Animate from the source image
+extension MaxiSongCardViewController {
+  func configureCoverImageInStartPosition() {
+    let originatingImageFrame = sourceView.originatingCoverImageView.frame
+    coverImageHeight.constant = originatingImageFrame.height
+    coverImageLeading.constant = originatingImageFrame.minX
+    coverImageTop.constant = originatingImageFrame.minY
+    coverImageBottom.constant = originatingImageFrame.minY
+  }
+  
+  func animateCoverImageIn() {
+    let coverImageEdgeConstraint: CGFloat = 30
+    let endHeight = coverImageContainer.bounds.width - coverImageEdgeConstraint * 2
+    UIView.animate(withDuration: primaryDuration, delay: 0, options: [.curveEaseIn], animations: {
+      self.coverImageHeight.constant = endHeight
+      self.coverImageLeading.constant = coverImageEdgeConstraint
+      self.coverImageTop.constant = coverImageEdgeConstraint
+      self.coverImageBottom.constant = coverImageEdgeConstraint
+      self.view.layoutIfNeeded()
+    }, completion: nil)
+  }
+  
+  func animateCoverImageout() {
+    UIView.animate(withDuration: primaryDuration, delay: 0, options: [.curveEaseIn], animations: {
+      self.configureCoverImageInStartPosition()
+      self.view.layoutIfNeeded()
+    }, completion: nil)
+  }
+  
+}
+
+//lower module animation
+extension MaxiSongCardViewController {
+  
+  //1.
+  private var lowerModuleInsetForOutPosition: CGFloat {
+    let bounds = view.bounds
+    let inset = bounds.height - bounds.width
+    return inset
+  }
+  
+  //2.
+  func configureLowerModuleInStartPosition() {
+    lowerModuleTopConstraint.constant = lowerModuleInsetForOutPosition
+  }
+  
+  //3.
+  func animateLowerModule(isPresenting: Bool) {
+    let topInset = isPresenting ? 0 : lowerModuleInsetForOutPosition
+    UIView.animate(withDuration: primaryDuration,
+                   delay:0,
+                   options: [.curveEaseIn],
+                   animations: {
+                    self.lowerModuleTopConstraint.constant = topInset
+                    self.view.layoutIfNeeded()
+    })
+  }
+  
+  //4.
+  func animateLowerModuleOut() {
+    animateLowerModule(isPresenting: false)
+  }
+  
+  //5.
+  func animateLowerModuleIn() {
+    animateLowerModule(isPresenting: true)
+  }
+}
+
+extension MaxiSongCardViewController {
+  func configureBottomSection() {
+    if let image = tabBarImage {
+      bottomSectionHeight.constant = image.size.height
+      bottomSectionImageView.image = image
+    } else {
+      bottomSectionHeight.constant = 0
+    }
+    view.layoutIfNeeded()
+  }
+  
+  func animateBottomSectionOut() {
+    if let image = tabBarImage {
+      UIView.animate(withDuration: primaryDuration / 2.0, animations: {
+        self.bottomSectionLowerConstraint.constant = -image.size.height
+        self.view.layoutIfNeeded()
+      })
+    }
+  }
+  
+  func animateBottomSectionIn() {
+    if tabBarImage != nil {
+      UIView.animate(withDuration: primaryDuration / 2.0, animations: {
+        self.bottomSectionLowerConstraint.constant = 0
+        self.view.layoutIfNeeded()
+      })
+    }
+  }
+  
 }
